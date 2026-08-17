@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "1054065441847",
+    "project_id": "vikings-war-5296b",
+    "storage_bucket": "vikings-war-5296b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1054065441847:android:c146c82d94f59147fb93b2",
+        "android_client_info": {
+          "package_name": "com.atomicdevs.vikingswar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1054065441847-3ouhokhh2nr9u7g8i23tuqr6dsoote0i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.atomicdevs.vikingswar",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "1054065441847-lk442mln8jqbm0h86cihlmk1g7dhfpvu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.atomicdevs.vikingswar",
+            "certificate_hash": "9f53a393bef8e2cefe82a5f5e1d38955485ed2c0"
+          }
+        },
+        {
+          "client_id": "1054065441847-5fvr9ut110ii1k70q5hi33j6apeaov5h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBsJsb7jzz2GujiJenUuleA-I4UfI7sqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1054065441847-5fvr9ut110ii1k70q5hi33j6apeaov5h.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1054065441847-17pbbgdl0jgrlm9tpfkdan1m4vb7m726.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.atomicdevs.vikingswar"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

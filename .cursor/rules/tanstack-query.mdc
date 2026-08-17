@@ -1,0 +1,243 @@
+---
+description: TanStack Query conventions for server state and API data
+globs: ["**/*.{ts,tsx}"]
+alwaysApply: true
+---
+
+# TanStack Query
+
+This project uses TanStack Query (@tanstack/react-query) for server state management.
+
+## Core Rules
+
+- Use TanStack Query for server/API state.
+- Do not use Zustand, Redux, Context, or component state to duplicate server state.
+- Keep server state separate from local UI state.
+- Prefer query hooks over calling API functions directly from components.
+- Reuse existing query hooks before creating new ones.
+- Follow the existing query key conventions in the project.
+
+## Query Structure
+
+Keep API functions and TanStack Query hooks close to their feature.
+
+Example:
+
+features/
+└── users/
+    ├── api/
+    │   └── usersApi.ts
+    ├── hooks/
+    │   └── useUsers.ts
+    ├── components/
+    ├── screens/
+    └── types/
+
+The API layer is responsible for communicating with the backend.
+
+The TanStack Query hook is responsible for:
+
+- query configuration
+- query keys
+- caching
+- stale time
+- refetch behavior
+- mutations
+- invalidation
+- loading/error state
+
+Components should consume the hook rather than directly calling the API.
+
+## Queries
+
+Prefer:
+
+const { data, isLoading, error } = useUsers();
+
+Avoid:
+
+const [users, setUsers] = useState([]);
+
+useEffect(() => {
+  fetchUsers().then(setUsers);
+}, []);
+
+Do not manually implement caching or request deduplication when TanStack Query can handle it.
+
+## Query Keys
+
+Use structured query keys.
+
+Example:
+
+['users']
+
+['users', userId]
+
+['users', { status, page }]
+
+Keep query keys centralized when the feature has multiple related queries.
+
+Example:
+
+export const userKeys = {
+  all: ['users'] as const,
+  detail: (id: string) => ['users', id] as const,
+};
+
+Reuse the same query keys for invalidation and related queries.
+
+## Mutations
+
+Use useMutation for server-side changes.
+
+Example:
+
+const mutation = useMutation({
+  mutationFn: updateUser,
+});
+
+After successful mutations, invalidate or update affected queries.
+
+Example:
+
+await queryClient.invalidateQueries({
+  queryKey: userKeys.all,
+});
+
+Prefer targeted invalidation rather than invalidating the entire query cache.
+
+## QueryClient
+
+Use the application's existing QueryClient.
+
+Do not create a new QueryClient inside components, hooks, or feature modules.
+
+The QueryClient should normally be configured at the application/provider level.
+
+Example:
+
+app/
+└── providers/
+    └── QueryProvider.tsx
+
+## Loading and Error States
+
+Use TanStack Query's state management.
+
+Consider:
+
+- isPending
+- isFetching
+- isError
+- error
+- data
+- isSuccess
+
+Do not create redundant loading/error state unless there is a specific UI requirement.
+
+## Mutations and Cache Updates
+
+When appropriate, prefer updating the cache directly instead of unnecessarily refetching the entire dataset.
+
+For example:
+
+queryClient.setQueryData(...)
+
+However, prioritize correctness over premature optimization.
+
+If the server response may affect multiple related queries, use targeted invalidation.
+
+## Pagination and Infinite Queries
+
+Use TanStack Query's pagination/infinite-query mechanisms for paginated APIs.
+
+Do not manually implement pagination state when TanStack Query can manage it.
+
+For infinite scrolling, prefer the project's established useInfiniteQuery pattern.
+
+## Dependent Queries
+
+Use the enabled option for queries that depend on another value.
+
+Example:
+
+useQuery({
+  queryKey: userKeys.detail(userId),
+  queryFn: () => getUser(userId),
+  enabled: !!userId,
+});
+
+Avoid manually triggering queries with useEffect when a declarative query configuration can solve the problem.
+
+## Prefetching
+
+Use queryClient.prefetchQuery when preloading data improves navigation or user experience.
+
+Do not prefetch indiscriminately.
+
+## Optimistic Updates
+
+Use optimistic updates only when the UX benefits from them and rollback behavior can be implemented safely.
+
+When implementing optimistic updates:
+
+1. Cancel conflicting queries.
+2. Snapshot existing data.
+3. Update the cache optimistically.
+4. Roll back on failure.
+5. Invalidate/refetch after completion when appropriate.
+
+## React Native Considerations
+
+Follow the application's existing TanStack Query configuration for:
+
+- app focus
+- network reconnect behavior
+- persistence
+- offline support
+- cache persistence
+
+Do not introduce custom focus or online managers without checking the existing implementation.
+
+## Architecture
+
+Dependency flow should generally be:
+
+Component
+    ↓
+Feature Hook
+    ↓
+TanStack Query
+    ↓
+API Function
+    ↓
+HTTP Client
+    ↓
+Backend
+
+Components should not directly perform HTTP requests.
+
+Avoid:
+
+fetch(...)
+axios.get(...)
+apiClient.get(...)
+
+inside React components.
+
+Prefer:
+
+const { data } = useUsers();
+
+## Existing Patterns
+
+Before creating a new query:
+
+1. Search the project for existing useQuery/useMutation patterns.
+2. Reuse the project's QueryClient configuration.
+3. Follow existing query-key conventions.
+4. Follow existing API client conventions.
+5. Follow existing error-handling conventions.
+
+Do not introduce a second data-fetching library if TanStack Query already handles the requirement.

@@ -1,0 +1,31 @@
+export const CATALOG_DOC_IDS = {
+  quests: 'quests',
+  enemies: 'enemies',
+  items: 'items',
+  lootTables: 'lootTables',
+  buildings: 'buildings',
+  warriors: 'warriors',
+  territories: 'territories',
+  bosses: 'bosses',
+  collections: 'collections',
+  events: 'events',
+  achievements: 'achievements',
+  shopProducts: 'shopProducts',
+  xpCurve: 'xpCurve',
+  dailyLogin: 'dailyLogin',
+} as const;
+
+export const FIRESTORE_COLLECTIONS = {
+  players: 'players',
+  catalogs: 'catalogs',
+  clans: 'clans',
+  clanChat: 'chat',
+  battles: 'battles',
+  leaderboards: 'leaderboards',
+  events: 'events',
+  config: 'config',
+  raids: 'raids',
+  world: 'world',
+  friends: 'friends',
+  gifts: 'gifts',
+} as const;

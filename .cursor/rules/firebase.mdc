@@ -1,0 +1,26 @@
+---
+description: Firebase development standards for the React Native project
+globs:
+  - "**/*firebase*"
+  - "**/firebase/**"
+  - "**/services/**"
+  - "**/hooks/**"
+alwaysApply: false
+---
+
+# Firebase Rules
+
+- Use the project's established Firebase architecture.
+- Use React Native Firebase when the project is configured with it.
+- Do not initialize Firebase repeatedly.
+- Keep Firebase configuration separate from UI components.
+- Do not put Firebase implementation details directly inside screens.
+- Encapsulate Firebase operations inside services/hooks.
+- Use TypeScript types for Firebase data.
+- Never hardcode secrets or credentials.
+- Do not log authentication tokens or sensitive user data.
+- Handle Firebase errors explicitly.
+- Clean up Firebase listeners/subscriptions when necessary.
+- Use Firestore queries efficiently.
+- Avoid unnecessary real-time listeners.
+- Follow the project's security rules and least-privilege principles.

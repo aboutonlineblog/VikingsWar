@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+"""Slice plans/viking_war_assets.png into named PNGs under src/assets."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from PIL import Image
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE = ROOT / "plans" / "viking_war_assets.png"
+OUT = ROOT / "src" / "assets"
+ATLAS_PATH = OUT / "atlas.json"
+
+# x, y, w, h in source pixels (1536x1024)
+ATLAS: dict[str, dict] = {
+    "brand/logo.png": {"x": 8, "y": 8, "w": 248, "h": 168},
+    "characters/player/portrait_hud.png": {"x": 250, "y": 12, "w": 70, "h": 80},
+    "characters/player/character_front.png": {"x": 16, "y": 730, "w": 180, "h": 230},
+    "characters/player/portrait_wolf.png": {"x": 200, "y": 930, "w": 68, "h": 80},
+    "characters/player/portrait_raven.png": {"x": 270, "y": 930, "w": 68, "h": 80},
+    "characters/player/portrait_bear.png": {"x": 340, "y": 930, "w": 68, "h": 80},
+    "characters/player/portrait_serpent.png": {"x": 410, "y": 930, "w": 68, "h": 80},
+    "characters/warriors/warrior_berserker.png": {"x": 828, "y": 32, "w": 128, "h": 236},
+    "characters/warriors/warrior_shieldmaiden.png": {"x": 958, "y": 32, "w": 128, "h": 236},
+    "characters/warriors/warrior_archer.png": {"x": 1088, "y": 32, "w": 128, "h": 236},
+    "buildings/building_great_hall.png": {"x": 452, "y": 36, "w": 122, "h": 118},
+    "buildings/building_farm.png": {"x": 576, "y": 36, "w": 122, "h": 118},
+    "buildings/building_blacksmith.png": {"x": 700, "y": 36, "w": 126, "h": 118},
+    "buildings/building_barracks.png": {"x": 452, "y": 170, "w": 122, "h": 118},
+    "buildings/building_shipyard.png": {"x": 576, "y": 170, "w": 122, "h": 118},
+    "buildings/building_temple.png": {"x": 700, "y": 170, "w": 126, "h": 118},
+    "world/world_map.png": {"x": 562, "y": 358, "w": 266, "h": 330},
+    "icons/resources/icon_resource_silver.png": {"x": 1220, "y": 28, "w": 72, "h": 58},
+    "icons/resources/icon_resource_wood.png": {"x": 1294, "y": 28, "w": 72, "h": 58},
+    "icons/resources/icon_resource_stone.png": {"x": 1368, "y": 28, "w": 72, "h": 58},
+    "icons/resources/icon_resource_iron.png": {"x": 1442, "y": 28, "w": 72, "h": 58},
+    "icons/resources/icon_resource_gold.png": {"x": 1220, "y": 88, "w": 72, "h": 58},
+    "icons/resources/icon_resource_runes.png": {"x": 1294, "y": 88, "w": 72, "h": 58},
+    "icons/resources/icon_resource_food.png": {"x": 1442, "y": 290, "w": 76, "h": 80},
+    "equipment/item_weapon.png": {"x": 1214, "y": 210, "w": 76, "h": 80},
+    "equipment/item_helmet.png": {"x": 1290, "y": 210, "w": 76, "h": 80},
+    "equipment/item_armor.png": {"x": 1366, "y": 210, "w": 76, "h": 80},
+    "equipment/item_shield.png": {"x": 1442, "y": 210, "w": 76, "h": 80},
+    "equipment/item_ring.png": {"x": 1214, "y": 290, "w": 76, "h": 80},
+    "equipment/item_amulet.png": {"x": 1290, "y": 290, "w": 76, "h": 80},
+    "equipment/item_boots.png": {"x": 1366, "y": 290, "w": 76, "h": 80},
+    "icons/navigation/icon_nav_home.png": {"x": 24, "y": 358, "w": 48, "h": 44},
+    "icons/navigation/icon_nav_battle.png": {"x": 24, "y": 410, "w": 48, "h": 44},
+    "icons/navigation/icon_nav_world.png": {"x": 24, "y": 462, "w": 48, "h": 44},
+    "icons/navigation/icon_nav_clan.png": {"x": 24, "y": 514, "w": 48, "h": 44},
+    "icons/navigation/icon_nav_viking.png": {"x": 24, "y": 566, "w": 48, "h": 44},
+    "icons/navigation/icon_nav_inventory.png": {"x": 24, "y": 618, "w": 48, "h": 44},
+    "icons/navigation/icon_nav_shop.png": {"x": 24, "y": 670, "w": 48, "h": 44},
+    "icons/navigation/icon_nav_settings.png": {"x": 24, "y": 722, "w": 48, "h": 44},
+    "icons/combat/icon_combat_attack.png": {"x": 850, "y": 618, "w": 90, "h": 72},
+    "icons/combat/icon_combat_special.png": {"x": 945, "y": 618, "w": 90, "h": 72},
+    "icons/combat/icon_combat_defend.png": {"x": 1040, "y": 618, "w": 90, "h": 72},
+    "icons/combat/icon_combat_potion.png": {"x": 1135, "y": 618, "w": 90, "h": 72},
+    "world/battle_stage.png": {"x": 840, "y": 310, "w": 480, "h": 180},
+    "social/banner_knot.png": {"x": 430, "y": 770, "w": 70, "h": 120},
+    "social/banner_raven.png": {"x": 505, "y": 770, "w": 70, "h": 120},
+    "social/banner_bear.png": {"x": 580, "y": 770, "w": 70, "h": 120},
+    "social/banner_rune.png": {"x": 655, "y": 770, "w": 70, "h": 120},
+    "social/rank_bronze.png": {"x": 500, "y": 910, "w": 72, "h": 88},
+    "social/rank_silver.png": {"x": 576, "y": 910, "w": 72, "h": 88},
+    "social/rank_gold.png": {"x": 652, "y": 910, "w": 72, "h": 88},
+    "social/rank_platinum.png": {"x": 728, "y": 910, "w": 80, "h": 88},
+    "social/rank_diamond.png": {"x": 812, "y": 910, "w": 80, "h": 88},
+    "social/rank_champion.png": {"x": 896, "y": 910, "w": 80, "h": 88},
+    "ui/chest_wood.png": {"x": 1340, "y": 730, "w": 160, "h": 80},
+    "ui/chest_iron.png": {"x": 1340, "y": 810, "w": 160, "h": 80},
+    "ui/chest_gold.png": {"x": 1340, "y": 890, "w": 160, "h": 90},
+    "icons/status/icon_mail.png": {"x": 1218, "y": 400, "w": 72, "h": 68},
+    "icons/status/icon_friends.png": {"x": 1294, "y": 400, "w": 72, "h": 68},
+    "icons/status/icon_crown.png": {"x": 1370, "y": 400, "w": 72, "h": 68},
+    "icons/status/icon_trophy.png": {"x": 1446, "y": 400, "w": 72, "h": 68},
+    "icons/status/icon_alert.png": {"x": 1218, "y": 470, "w": 72, "h": 68},
+    "icons/status/icon_calendar.png": {"x": 1294, "y": 470, "w": 72, "h": 68},
+    "icons/status/icon_gift.png": {"x": 1370, "y": 470, "w": 72, "h": 68},
+    "icons/status/icon_handshake.png": {"x": 1446, "y": 470, "w": 72, "h": 68},
+    "ui/button_blue.png": {"x": 980, "y": 722, "w": 72, "h": 36},
+    "ui/button_green.png": {"x": 1056, "y": 722, "w": 72, "h": 36},
+    "ui/button_red.png": {"x": 1132, "y": 722, "w": 72, "h": 36},
+}
+
+
+def main() -> None:
+    image = Image.open(SOURCE).convert("RGBA")
+    width, height = image.size
+    written: dict[str, dict] = {}
+    for rel, box in ATLAS.items():
+        dest = OUT / rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        x, y, w, h = box["x"], box["y"], box["w"], box["h"]
+        crop = image.crop((x, y, min(x + w, width), min(y + h, height)))
+        crop.save(dest)
+        written[rel] = box
+        print(f"wrote {rel} {crop.size}")
+    ATLAS_PATH.write_text(json.dumps(written, indent=2) + "\n")
+    print(f"atlas {ATLAS_PATH}")
+
+
+if __name__ == "__main__":
+    main()

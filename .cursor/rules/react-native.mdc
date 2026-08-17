@@ -1,0 +1,42 @@
+---
+description: React Native development standards and best practices
+globs: ["**/*.{ts,tsx}"]
+alwaysApply: true
+---
+
+# React Native Development Guidelines
+
+## Core Principles
+
+- Use modern React Native and React patterns.
+- Use functional components and hooks.
+- Write TypeScript-first code.
+- Prefer simple, readable solutions over unnecessary abstractions.
+- Follow the existing project architecture and conventions.
+- Reuse existing components, hooks, utilities, and services before creating new ones.
+- Do not introduce a new library when existing project dependencies can solve the problem.
+- Do not modify native iOS or Android code unless the requirement genuinely requires it.
+- Keep platform-specific code isolated when possible.
+
+## Components
+
+- Keep components small and focused on a single responsibility.
+- Prefer composition over deeply nested component hierarchies.
+- Separate presentation from business logic.
+- Avoid "god components" containing API calls, complex business logic, navigation, and large amounts of UI in one file.
+- Extract complex logic into hooks or feature-level modules.
+- Keep reusable components independent from specific screens whenever possible.
+
+Prefer:
+
+```tsx
+function ProfileScreen() {
+  const { user } = useUser();
+
+  return (
+    <Screen>
+      <ProfileHeader user={user} />
+      <ProfileDetails user={user} />
+    </Screen>
+  );
+}

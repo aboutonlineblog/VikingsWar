@@ -1,0 +1,117 @@
+---
+description: Testing standards and best practices for building a robust React Native application
+globs: ["**/*.{ts,tsx,js,jsx}", "**/*.{test,spec}.{ts,tsx,js,jsx}"]
+alwaysApply: true
+---
+
+# Testing Guidelines
+
+## Core Testing Philosophy
+
+- Tests should verify behavior, not implementation details.
+- Prefer tests that simulate how a real user interacts with the application.
+- Every important feature should have appropriate test coverage.
+- Prioritize critical business logic and user flows over achieving an arbitrary coverage percentage.
+- Tests must be deterministic, isolated, maintainable, and readable.
+- Avoid tests that depend on timing, network availability, device-specific behavior, or implementation details unless explicitly required.
+- A passing test suite should provide meaningful confidence that the application works.
+- Do not write tests merely to increase code coverage.
+
+## Testing Pyramid
+
+Use the appropriate testing level for each requirement.
+
+### Unit Tests
+
+Use unit tests for:
+
+- pure functions
+- business logic
+- data transformations
+- validation
+- formatting
+- calculations
+- reducers
+- state transitions
+- utility functions
+
+Unit tests should be:
+
+- fast
+- deterministic
+- isolated
+- independent of React Native rendering when possible
+
+### Component Tests
+
+Use component tests for:
+
+- rendering behavior
+- user interactions
+- form behavior
+- loading states
+- error states
+- conditional rendering
+- accessibility behavior
+- component integration
+
+Test components from the user's perspective.
+
+### Integration Tests
+
+Use integration tests when multiple parts of the application work together.
+
+Examples:
+
+- screen + hooks
+- screen + state management
+- form + validation
+- feature + API layer
+- authentication flows
+- navigation flows
+
+Prefer integration tests over excessive mocking when practical.
+
+### End-to-End Tests
+
+Use E2E tests for critical user journeys.
+
+Examples:
+
+- application launch
+- authentication
+- registration
+- checkout/payment
+- creating important content
+- uploading media
+- editing content
+- saving changes
+- critical navigation flows
+- logout
+
+E2E tests should verify that the application works as a complete system.
+
+---
+
+# Test Selection Rules
+
+Before writing a test, determine the appropriate testing level.
+
+Prefer:
+
+```text
+Pure business logic
+        ↓
+Unit test
+
+Component behavior
+        ↓
+Component test
+
+Multiple application layers
+        ↓
+Integration test
+
+Critical end-to-end user journey
+        ↓
+E2E test

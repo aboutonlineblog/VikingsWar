@@ -1,0 +1,314 @@
+---
+description: Architecture and project structure guidelines for this React Native application
+globs: ["**/*.{ts,tsx,js,jsx}"]
+alwaysApply: true
+---
+
+# React Native Architecture Guidelines
+
+## Core Principles
+
+- Use a feature-oriented architecture rather than organizing the entire application by technical type.
+- Keep business logic separate from UI components.
+- Keep components small, focused, and reusable.
+- Prefer composition over inheritance.
+- Follow existing project conventions before introducing a new architectural pattern.
+- Do not introduce abstractions unless they solve a real problem.
+- Avoid over-engineering simple features.
+- Keep dependencies flowing in one direction: UI → application/feature logic → data/infrastructure.
+- Business logic should not depend directly on React Native UI components.
+- Avoid circular dependencies.
+- Always double check the features if it follows the stated plans.
+
+## Recommended Project Structure
+
+Organize application code primarily by feature/domain, since this project will be using React Query/TanStack Query, keep server-state logic close to each feature:
+
+src/
+├── app/
+│   ├── navigation/
+│   └── providers/
+│
+├── features/
+│   ├── auth/
+│   │   ├── api/
+│   │   ├── hooks/
+│   │   ├── components/
+│   │   ├── screens/
+│   │   └── types/
+│   │
+│   ├── videos/
+│   │   ├── api/
+│   │   ├── hooks/
+│   │   ├── components/
+│   │   ├── screens/
+│   │   └── types/
+│   │
+│   └── profile/
+│
+├── components/
+│   └── ui/
+│
+├── lib/
+│   ├── query/
+│   ├── storage/
+│   └── analytics/
+│
+├── hooks/
+├── utils/
+└── types/
+
+## Feature Boundaries
+
+- Each feature should encapsulate its own UI, state, API interactions, types, and business logic where practical.
+- Features should not directly access another feature's internal implementation.
+- If a feature needs functionality from another feature, expose a small public API through that feature's `index.ts`.
+- Avoid importing deeply into another feature.
+
+Good:
+
+import { useAuth } from '@/features/auth';
+
+Avoid:
+
+import { useAuth } from '@/features/auth/hooks/useAuth';
+
+when the hook is intended to be part of the feature's public API.
+
+## Components
+
+- Components should primarily be responsible for rendering UI and handling UI-specific interactions.
+- Avoid putting API calls, complex business rules, or large amounts of state management directly inside presentational components.
+- Extract reusable logic into hooks or feature-level services.
+- Keep components focused on one responsibility.
+- Prefer controlled components when state needs to be managed by the parent.
+- Avoid creating components that are only wrappers around another component unless they provide meaningful behavior or abstraction.
+
+## Screens
+
+- Screens/pages represent a feature's entry point and coordinate UI state.
+- Screens may compose multiple components and hooks.
+- Avoid putting large business-logic implementations directly inside screens.
+- Extract complex logic into feature hooks, services, or utilities.
+- Screens should not become "god components."
+
+## Business Logic
+
+- Business rules should live outside presentational components.
+- Prefer pure functions for deterministic business logic.
+- Business logic should be easy to unit test without rendering React Native components.
+- Do not place business rules inside JSX.
+- Avoid duplicating business logic across screens.
+
+## State Management
+
+Use the smallest appropriate state-management solution.
+
+Prefer:
+
+1. Local component state for UI-only state.
+2. Feature-level hooks for feature-specific state.
+3. Server-state management for remote API data.
+4. Global state only for genuinely global client state.
+
+- Do not put server/API data into global state unless there is a specific reason.
+- Avoid global state for values that can remain local to a feature.
+- Avoid duplicating the same state in multiple stores.
+- Keep state as close as possible to where it is consumed.
+
+## API / Data Layer
+
+Separate API communication from UI components.
+
+Prefer:
+
+UI
+↓
+Feature hook
+↓
+API/service
+↓
+HTTP client
+
+For example:
+
+features/users/
+├── api/
+│   └── usersApi.ts
+├── hooks/
+│   └── useUsers.ts
+├── screens/
+└── components/
+
+Components and screens should not directly construct HTTP requests.
+
+Avoid:
+
+const response = await fetch('/users');
+
+inside a React component.
+
+Prefer:
+
+const { data } = useUsers();
+
+## Server State
+
+- Treat server state differently from local UI state.
+- Prefer the project's established server-state library when one exists.
+- Cache, refetch, mutation, loading, and error behavior should be handled in the data layer rather than duplicated across screens.
+- Do not manually synchronize multiple copies of server data unless necessary.
+
+## Navigation
+
+- Keep navigation configuration centralized within the application/navigation layer.
+- Feature screens should not contain global navigation configuration.
+- Avoid tightly coupling reusable components to a specific navigator.
+- Pass navigation-related behavior through well-defined interfaces when appropriate.
+
+## Shared Components
+
+Only move code into `components/`, `hooks/`, `utils/`, or other shared directories when it is genuinely shared.
+
+Do not prematurely move feature-specific code into global directories.
+
+Prefer:
+
+features/profile/components/ProfileHeader.tsx
+
+over:
+
+components/ProfileHeader.tsx
+
+if ProfileHeader is only used by the profile feature.
+
+## Utilities
+
+- Utilities should contain generic, reusable functionality.
+- Utilities should preferably be pure functions.
+- Avoid creating large "utils" files containing unrelated functionality.
+- If a utility is only used by one feature, keep it inside that feature.
+
+## Types
+
+- Keep feature-specific types close to the feature.
+- Put genuinely shared types in the shared types directory.
+- Avoid creating a single massive global types file.
+- Prefer deriving types from existing schemas/API definitions when possible.
+- Avoid `any`.
+- Do not duplicate types when an existing type can safely be reused.
+
+## Dependency Direction
+
+Maintain the following general dependency direction:
+
+UI Components
+    ↓
+Screens
+    ↓
+Feature Hooks / Application Logic
+    ↓
+Services / API / Infrastructure
+
+Lower-level modules should not import higher-level UI modules.
+
+For example:
+
+services/ → components/   ❌
+utils/ → screens/         ❌
+features/auth/ → features/profile/internal-file.ts  ❌
+
+Prefer:
+
+features/profile/ → features/auth/public-api  ✅
+
+## React Hooks
+
+- Hooks should encapsulate reusable stateful behavior.
+- Avoid hooks that perform unrelated responsibilities.
+- Keep hooks focused and composable.
+- Do not create a custom hook simply to wrap a single React hook without adding meaningful behavior.
+- Avoid hooks that become large collections of unrelated logic.
+
+## Error Handling
+
+- Handle errors at the appropriate architectural layer.
+- API/service layers should normalize technical/API errors when appropriate.
+- UI layers should decide how errors are presented to users.
+- Do not expose raw backend errors directly to users.
+- Avoid silently swallowing errors.
+
+## Async Operations
+
+- Handle loading, success, empty, and error states explicitly where appropriate.
+- Avoid race conditions when multiple requests can be triggered.
+- Cancel or invalidate asynchronous work when the underlying library supports it.
+- Avoid unnecessary sequential API requests when operations can safely run in parallel.
+
+## Native Code
+
+- Keep native iOS/Android implementation isolated from JavaScript/TypeScript code.
+- Do not modify native files unless required.
+- Prefer established React Native libraries before implementing custom native modules.
+- When native functionality is required, keep the native interface small and well documented.
+
+## Performance
+
+- Do not optimize prematurely.
+- Avoid unnecessary re-renders caused by unstable props, unnecessary state, or incorrectly scoped contexts.
+- Use memoization only when there is a demonstrated or likely performance benefit.
+- Avoid rendering large lists with ScrollView; use FlatList/FlashList or the project's established list solution.
+- Keep expensive computations outside render paths where appropriate.
+- Avoid unnecessary global state subscriptions.
+
+## Testing
+
+Architecture should make business logic testable independently from UI.
+
+Prefer:
+
+- Unit tests for pure business logic.
+- Hook tests for complex reusable hooks where appropriate.
+- Component tests for important UI behavior.
+- Integration/E2E tests for critical user flows.
+
+Do not make tests dependent on implementation details when behavior can be tested instead.
+
+## File Size and Complexity
+
+- Prefer small, focused modules.
+- When a file becomes difficult to understand, consider splitting it by responsibility.
+- Do not split files merely to meet an arbitrary line count.
+- Avoid "god components", "god hooks", and "god services."
+
+## Refactoring Rules
+
+Before introducing a new abstraction:
+
+1. Check whether an existing abstraction already solves the problem.
+2. Check how similar functionality is implemented elsewhere.
+3. Prefer consistency with the existing architecture.
+4. Keep the change as small as reasonably possible.
+5. Do not refactor unrelated code while implementing a feature.
+
+When modifying existing code, preserve the existing architecture unless there is a clear reason to improve it.
+
+## Cursor Agent Behavior
+
+Before creating new files or folders:
+
+1. Inspect the existing project structure.
+2. Identify existing patterns for similar features.
+3. Reuse existing components, hooks, services, utilities, and types where appropriate.
+4. Follow the project's established conventions.
+5. Only introduce a new architectural pattern when the existing architecture cannot reasonably support the requirement.
+
+Do not create new folders or abstractions simply because they appear in this document.
+
+When uncertain about where code belongs, prefer the smallest scope that satisfies the requirement:
+
+feature-specific → feature directory
+shared across features → shared directory
+application-wide → app directory
+infrastructure → services/infrastructure directory
+One change I'd make for your projects

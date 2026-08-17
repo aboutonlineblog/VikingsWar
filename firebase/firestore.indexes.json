@@ -1,0 +1,12 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "players",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "level", "order": "ASCENDING" },
+        { "fieldPath": "pvp.prestige", "order": "DESCENDING" }
+      ]
+    }
+  ]
+}

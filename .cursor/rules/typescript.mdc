@@ -1,0 +1,13 @@
+---
+description: TypeScript coding standards
+globs: ["**/*.ts", "**/*.tsx"]
+alwaysApply: true
+---
+
+# TypeScript Guidelines
+
+- Prefer interfaces for public object contracts.
+- Avoid `any` unless there is a specific reason.
+- Reuse existing types.
+- Avoid unnecessary type assertions.
+- Prefer explicit return types for exported functions.

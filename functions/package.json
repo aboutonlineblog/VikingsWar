@@ -1,0 +1,19 @@
+{
+  "name": "vikings-war-functions",
+  "private": true,
+  "main": "lib/functions/src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "seed": "tsc && node lib/functions/src/seed/runSeed.js"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.6.0",
+    "firebase-functions": "^7.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

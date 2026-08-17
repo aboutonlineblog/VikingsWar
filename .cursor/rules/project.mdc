@@ -1,0 +1,16 @@
+---
+description: General rules for this project
+alwaysApply: true
+---
+
+# Project Guidelines
+
+- This is a React Native application, do not use expo.
+- Use TypeScript.
+- Use functional components and hooks.
+- Make the app modular.
+- Reuse existing utilities and components before creating new ones.
+- Create a unit test for each created feature.
+- Run type checking after significant changes.
+- Do not modify native iOS/Android configuration unless necessary.
+- Always check if the created feature works in both iOS and Android.
