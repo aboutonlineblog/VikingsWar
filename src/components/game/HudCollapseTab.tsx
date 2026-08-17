@@ -1,11 +1,13 @@
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { images } from '@/assets';
-import { colors } from '@/theme/theme';
 
 interface HudCollapseTabProps {
   expanded: boolean;
   onPress: () => void;
 }
+
+const ICON_WIDTH = 56;
+const ICON_HEIGHT = Math.round(ICON_WIDTH * (202 / 252));
 
 export function HudCollapseTab({ expanded, onPress }: HudCollapseTabProps) {
   return (
@@ -19,6 +21,7 @@ export function HudCollapseTab({ expanded, onPress }: HudCollapseTabProps) {
       >
         <Image
           source={images.hudChevronDown}
+          testID="hud-chevron-icon"
           style={[styles.icon, expanded && styles.iconExpanded]}
           resizeMode="contain"
         />
@@ -30,21 +33,15 @@ export function HudCollapseTab({ expanded, onPress }: HudCollapseTabProps) {
 const styles = StyleSheet.create({
   wrap: {
     alignItems: 'center',
-    marginTop: -10,
+    marginTop: -18,
   },
   tab: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 2,
-    borderColor: colors.hudFrame,
-    backgroundColor: colors.hudSection,
     alignItems: 'center',
     justifyContent: 'center',
   },
   icon: {
-    width: 16,
-    height: 16,
+    width: ICON_WIDTH,
+    height: ICON_HEIGHT,
   },
   iconExpanded: {
     transform: [{ rotate: '180deg' }],

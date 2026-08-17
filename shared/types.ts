@@ -264,6 +264,8 @@ export interface ItemDef {
   defense: number;
   health: number;
   speed: number;
+  description?: string;
+  bound?: boolean;
 }
 
 export interface LootEntry {

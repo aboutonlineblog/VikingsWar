@@ -12,7 +12,7 @@ import { useAuth } from '@/features/auth';
 import { usePlayer } from '@/features/player';
 import { useBusyAction } from '@/hooks/useBusyAction';
 import { images } from '@/assets';
-import { colors, spacing } from '@/theme/theme';
+import { colors, radius, spacing } from '@/theme/theme';
 
 export function ShopScreen() {
   const products = useQuery({ queryKey: catalogKeys.doc('shopProducts'), queryFn: fetchShopProducts });
@@ -31,12 +31,14 @@ export function ShopScreen() {
         {(products.data ?? []).map((product) => (
           <View key={product.id} style={styles.tile}>
             <Card style={styles.card}>
-              <Image
-                source={images.iconGift}
-                style={styles.art}
-                resizeMode="contain"
-                accessibilityLabel={`${product.name} image`}
-              />
+              <View style={styles.artFrame}>
+                <Image
+                  source={images.iconGift}
+                  style={styles.art}
+                  resizeMode="contain"
+                  accessibilityLabel={`${product.name} image`}
+                />
+              </View>
               <Body numberOfLines={2}>{product.name}</Body>
               <Body muted numberOfLines={2} style={styles.meta}>
                 {product.description}
@@ -85,11 +87,18 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     padding: spacing.sm,
   },
-  art: {
+  artFrame: {
     width: '100%',
     aspectRatio: 1,
     marginBottom: spacing.sm,
     backgroundColor: colors.bg,
+    borderRadius: radius.sm,
+    overflow: 'hidden',
+  },
+  art: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
   },
   meta: {
     fontSize: 12,

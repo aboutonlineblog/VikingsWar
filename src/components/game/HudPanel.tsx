@@ -1,15 +1,16 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { colors, radius, spacing } from '@/theme/theme';
 
 interface HudPanelProps {
   children: ReactNode;
+  style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
-export function HudPanel({ children, testID = 'hud-panel' }: HudPanelProps) {
+export function HudPanel({ children, style, testID = 'hud-panel' }: HudPanelProps) {
   return (
-    <View style={styles.panel} testID={testID}>
+    <View style={[styles.panel, style]} testID={testID}>
       {children}
     </View>
   );

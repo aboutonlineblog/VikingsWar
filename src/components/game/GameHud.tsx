@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePlayer } from '@/features/player';
 import { SettingsButton } from '@/features/settings';
 import { avatarArt } from '@/assets';
+import { HudCollapseTab } from './HudCollapseTab';
 import { HudIdentityHeader } from './HudIdentityHeader';
 import { HudPanel } from './HudPanel';
 import { HudResourceRow } from './HudResourceRow';
@@ -22,6 +23,7 @@ export function GameHud() {
   const player = usePlayer();
   const insets = useSafeAreaInsets();
   const [now, setNow] = useState(Date.now());
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -43,7 +45,7 @@ export function GameHud() {
 
   return (
     <View style={[styles.outer, { paddingTop: insets.top + spacing.sm }]}>
-      <HudPanel>
+      <HudPanel style={!expanded ? styles.panelCollapsed : undefined}>
         <HudIdentityHeader
           portrait={avatarArt(data.avatarId)}
           name={data.vikingName}
@@ -53,28 +55,36 @@ export function GameHud() {
           settingsSlot={<SettingsButton variant="hud" />}
         />
 
-        <HudStatRow
-          label="Health"
-          current={data.health}
-          max={data.maxHealth}
-          color={colors.hudHealth}
-        />
-        <HudStatRow
-          label="Energy"
-          current={energy.current}
-          max={energy.max}
-          color={colors.hudEnergyFill}
-        />
-        <HudStatRow
-          label="Stamina"
-          current={stamina.current}
-          max={stamina.max}
-          color={colors.stamina}
-          timer={staminaTimer}
-        />
+        {expanded ? (
+          <>
+            <HudStatRow
+              label="Health"
+              current={data.health}
+              max={data.maxHealth}
+              color={colors.hudHealth}
+            />
+            <HudStatRow
+              label="Energy"
+              current={energy.current}
+              max={energy.max}
+              color={colors.hudEnergyFill}
+            />
+            <HudStatRow
+              label="Stamina"
+              current={stamina.current}
+              max={stamina.max}
+              color={colors.stamina}
+              timer={staminaTimer}
+            />
 
-        <HudResourceRow currencies={data.currencies} />
+            <HudResourceRow currencies={data.currencies} />
+          </>
+        ) : null}
       </HudPanel>
+      <HudCollapseTab
+        expanded={expanded}
+        onPress={() => setExpanded(value => !value)}
+      />
     </View>
   );
 }
@@ -83,5 +93,8 @@ const styles = StyleSheet.create({
   outer: {
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xs,
+  },
+  panelCollapsed: {
+    paddingBottom: spacing.lg,
   },
 });

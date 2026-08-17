@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -7,6 +8,7 @@ import { Title, Body } from '@/components/ui/Typography';
 import { ItemSlot, ItemSlotGrid } from '@/components/ui/ItemSlot';
 import { RankBadge } from '@/components/ui/RankBadge';
 import { useAuth } from '@/features/auth';
+import { EquipmentDetailModal, equippedItemForSlot, useItemsCatalog } from '@/features/inventory';
 import { usePlayer } from '@/features/player';
 import { useBusyAction } from '@/hooks/useBusyAction';
 import { useQuery } from '@tanstack/react-query';
@@ -15,7 +17,7 @@ import { fetchAchievements } from '@/features/quests/api/catalogApi';
 import { APP_ENV, APP_VERSION, BUILD_NUMBER } from '@/lib/env';
 import { images } from '@/assets';
 import { colors, spacing } from '@/theme/theme';
-import { EQUIP_SLOTS } from '@shared/types';
+import { EQUIP_SLOTS, type ItemDef } from '@shared/types';
 import type { RootStackParamList } from '@/app/navigation/types';
 
 export function ProfileScreen() {
@@ -23,8 +25,14 @@ export function ProfileScreen() {
   const { signOut } = useAuth();
   const { run, isBusy } = useBusyAction();
   const player = usePlayer();
+  const items = useItemsCatalog();
   const achievements = useQuery({ queryKey: catalogKeys.doc('achievements'), queryFn: fetchAchievements });
+  const [inspectedItem, setInspectedItem] = useState<ItemDef | null>(null);
   const data = player.data;
+  const itemsById = useMemo(
+    () => Object.fromEntries((items.data ?? []).map((item) => [item.id, item])),
+    [items.data],
+  );
 
   if (!data) {
     return (
@@ -51,15 +59,29 @@ export function ProfileScreen() {
       </View>
       <Body>Equipment</Body>
       <ItemSlotGrid>
-        {EQUIP_SLOTS.map((slot) => (
-          <ItemSlot
-            key={slot}
-            slot={slot}
-            label={data.equipment[slot] ? 'equipped' : slot}
-            selected={Boolean(data.equipment[slot])}
-            onPress={() => navigation.navigate('Inventory')}
-          />
-        ))}
+        {EQUIP_SLOTS.map((slot) => {
+          const equipped = equippedItemForSlot(data.equipment, data.inventory, itemsById, slot);
+          const hasEquipment = Boolean(data.equipment[slot]);
+          return (
+            <ItemSlot
+              key={slot}
+              slot={slot}
+              itemId={equipped?.id}
+              label={equipped?.name ?? slot}
+              selected={hasEquipment}
+              onPress={() => {
+                if (equipped) {
+                  setInspectedItem(equipped);
+                  return;
+                }
+                if (hasEquipment) {
+                  return;
+                }
+                navigation.navigate('Inventory');
+              }}
+            />
+          );
+        })}
       </ItemSlotGrid>
       <Button label="Inventory" onPress={() => navigation.navigate('Inventory')} />
       <Button label="Warband" variant="secondary" onPress={() => navigation.navigate('Warband')} />
@@ -83,6 +105,7 @@ export function ProfileScreen() {
         }}
         loading={isBusy('signOut')}
       />
+      <EquipmentDetailModal item={inspectedItem} onClose={() => setInspectedItem(null)} />
     </Screen>
   );
 }

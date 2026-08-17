@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 import { GameHud } from './GameHud';
 import { SettingsProvider } from '@/features/settings';
 
@@ -51,20 +51,40 @@ describe('GameHud', () => {
     usePlayer.mockReturnValue({ data: basePlayer });
   });
 
-  it('renders identity, vitals, and resources', async () => {
-    const { getByText, getByLabelText, getByTestId, queryByTestId, unmount } = await renderHud();
+  it('renders identity only while minimized', async () => {
+    const { getByText, getByTestId, queryByText, queryByLabelText, queryByTestId, unmount } =
+      await renderHud();
 
     expect(getByText('Erik')).toBeTruthy();
     expect(getByText('Lv 4')).toBeTruthy();
+    expect(getByTestId('hud-xp-label')).toBeTruthy();
+    expect(getByTestId('settings-button')).toBeTruthy();
+    expect(getByTestId('hud-identity-header')).toBeTruthy();
+    expect(getByTestId('hud-chevron')).toBeTruthy();
+    expect(queryByText('Health 80/100')).toBeNull();
+    expect(queryByText('Energy 72/100')).toBeNull();
+    expect(queryByText('Stamina 18/20')).toBeNull();
+    expect(queryByLabelText('silver 100')).toBeNull();
+    expect(queryByTestId('hud-combat-stats')).toBeNull();
+    unmount();
+  });
+
+  it('toggles the full HUD from the collapse tab', async () => {
+    const { getByTestId, getByText, getByLabelText, queryByText, queryByLabelText, unmount } =
+      await renderHud();
+
+    fireEvent.press(getByTestId('hud-chevron'));
+
     expect(getByText('Health 80/100')).toBeTruthy();
     expect(getByText('Energy 72/100')).toBeTruthy();
     expect(getByText('Stamina 18/20')).toBeTruthy();
     expect(getByLabelText('silver 100')).toBeTruthy();
     expect(getByLabelText('runes 2')).toBeTruthy();
-    expect(getByTestId('settings-button')).toBeTruthy();
-    expect(getByTestId('hud-identity-header')).toBeTruthy();
-    expect(queryByTestId('hud-combat-stats')).toBeNull();
-    expect(queryByTestId('hud-chevron')).toBeNull();
+
+    fireEvent.press(getByTestId('hud-chevron'));
+
+    expect(queryByText('Health 80/100')).toBeNull();
+    expect(queryByLabelText('silver 100')).toBeNull();
     unmount();
   });
 
@@ -77,7 +97,8 @@ describe('GameHud', () => {
       },
     });
     const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(5 * 60 * 1000);
-    const { getByText, unmount } = await renderHud();
+    const { getByTestId, getByText, unmount } = await renderHud();
+    fireEvent.press(getByTestId('hud-chevron'));
     expect(getByText('Energy 11/100')).toBeTruthy();
     nowSpy.mockRestore();
     unmount();
